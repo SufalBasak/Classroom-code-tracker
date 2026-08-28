@@ -12,7 +12,13 @@ const sampleTimeData = [
   { date: 'Aug 28', solved: 127 }
 ];
 
-export const QuestionsOverTimeChart: React.FC = () => {
+export interface QuestionsOverTimeProps {
+  data?: { date: string; solved: number }[];
+}
+
+export const QuestionsOverTimeChart: React.FC<QuestionsOverTimeProps> = ({ data }) => {
+  const chartData = data && data.length > 0 ? data : sampleTimeData;
+
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
       <div>
@@ -22,7 +28,7 @@ export const QuestionsOverTimeChart: React.FC = () => {
 
       <div className="h-64 w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={sampleTimeData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+          <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <defs>
               <linearGradient id="blueGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#2563EB" stopOpacity={0.3} />

@@ -1,18 +1,23 @@
 import React, { useState } from 'react';
 import { platformService } from '../../services/platformService';
+import { questionService } from '../../services/questionService';
 import { PlatformBadge } from '../../components/common/Badge';
-import { Button } from '../../components/common/Button';
-import { Shield, Link2, CheckCircle2 } from 'lucide-react';
+import { Link2, CheckCircle2 } from 'lucide-react';
 import { PlatformId } from '../../types';
 
 export const AdminPlatformsPage: React.FC = () => {
   const platforms = platformService.getPlatforms();
+  const questions = questionService.getQuestions();
   const [testUrl, setTestUrl] = useState('https://leetcode.com/problems/two-sum/');
   const [detected, setDetected] = useState<PlatformId | null>('LeetCode');
 
   const handleTestUrlChange = (url: string) => {
     setTestUrl(url);
     setDetected(platformService.detectPlatformFromUrl(url));
+  };
+
+  const getQuestionCountForPlatform = (platformId: PlatformId) => {
+    return questions.filter((q) => q.platform === platformId).length;
   };
 
   return (
@@ -52,26 +57,29 @@ export const AdminPlatformsPage: React.FC = () => {
 
       {/* Platform Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {platforms.map((plat) => (
-          <div key={plat.id} className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-3">
-            <div className="flex justify-between items-center">
-              <PlatformBadge platform={plat.id} />
-              <span className="px-2.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-xs font-semibold">
-                Active Integration
-              </span>
-            </div>
+        {platforms.map((plat) => {
+          const count = getQuestionCountForPlatform(plat.id);
+          return (
+            <div key={plat.id} className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-3">
+              <div className="flex justify-between items-center">
+                <PlatformBadge platform={plat.id} />
+                <span className="px-2.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-xs font-semibold">
+                  Active Integration
+                </span>
+              </div>
 
-            <div>
-              <h4 className="font-bold text-slate-900 text-lg">{plat.name}</h4>
-              <p className="text-xs text-slate-500 font-mono mt-0.5">{plat.baseUrl}</p>
-            </div>
+              <div>
+                <h4 className="font-bold text-slate-900 text-lg">{plat.name}</h4>
+                <p className="text-xs text-slate-500 font-mono mt-0.5">{plat.baseUrl}</p>
+              </div>
 
-            <div className="pt-2 border-t border-slate-100 flex justify-between text-xs text-slate-600">
-              <span>Platform Inventory:</span>
-              <strong className="text-slate-900">{plat.totalQuestionsOnPlatform}+ Problems</strong>
+              <div className="pt-2 border-t border-slate-100 flex justify-between text-xs text-slate-600">
+                <span>Platform Inventory:</span>
+                <strong className="text-slate-900">{count > 0 ? `${count} Active Questions` : `${plat.totalQuestionsOnPlatform}+ Problems`}</strong>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
